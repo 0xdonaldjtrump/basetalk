@@ -183,6 +183,7 @@ code{background:#eef2f9;border-radius:6px;padding:2px 6px;font-size:12.5px;word-
         <h1 data-i18n="setupTitle">Set up BaseTalk</h1>
         <p data-i18n="setupText">This page has no contract yet. Connect the wallet that should receive all fees and deploy the contract on Base. It costs only gas (a few cents).</p>
         <div class="field" style="justify-content:center"><button class="btn" id="btnDeploy" data-i18n="deploy">Connect wallet &amp; deploy</button></div>
+        <p id="deployStep" class="hidden" style="background:#e8efff;border:1px solid #cddcff;border-radius:12px;padding:10px 14px;color:#0f1a2e;font-weight:600"></p>
         <div id="deployResult" class="hidden">
           <p><span data-i18n="deployed">Contract deployed:</span><br><code id="deployedAddr"></code></p>
           <p data-i18n="downloadHint">Download the ready file and upload it to your site in place of this one. That's all.</p>
@@ -368,7 +369,7 @@ rejected:"Cancelled in wallet",lowFunds:"Not enough ETH on Base for fee + gas",e
 switchNet:"Please switch your wallet to Base",newMsg:"New message from {n}",pubStats:"{u} users · {m} messages sent",
 deployConfirm:"Deploy BaseTalk from {a}? All fees will go to this wallet.",deploying:"Deploying…",wrongOwner:"Not the admin wallet",notContract:"That address is not a BaseTalk contract on Base",
 shareText:"Write to me on BaseTalk — my number is {n}",cancel:"Cancel",ok:"OK",ago:"ago",now:"just now",
-statusFree:"Status changes cost only gas (fractions of a cent).",noWalletShort:"No wallet in this browser. Open this page in Chrome with MetaMask or in the MetaMask / Coinbase Wallet app."},
+statusFree:"Status changes cost only gas (fractions of a cent).",stepConnect:"Step 1: unlock MetaMask and approve the connection (click the fox icon at the top right of Chrome if no window appears).",stepConfirm:"Step 2: confirm the deployment in MetaMask (fox icon at the top right if no window appears).",stepWait:"Step 3: waiting for Base to confirm… (a few seconds)",stepPending:"MetaMask already has an open request — click the fox icon at the top right of Chrome and finish or reject it, then try again.",noWalletShort:"No wallet in this browser. Open this page in Chrome with MetaMask or in the MetaMask / Coinbase Wallet app."},
 pl:{admin:"Admin",setupTitle:"Konfiguracja BaseTalk",setupText:"Ta strona nie ma jeszcze kontraktu. Połącz portfel, na który mają trafiać wszystkie opłaty, i wdroż kontrakt na Base. Kosztuje tylko gaz (kilka centów).",deploy:"Połącz portfel i wdroż",deployed:"Kontrakt wdrożony:",downloadHint:"Pobierz gotowy plik i wrzuć go na stronę w miejsce tego. To wszystko.",download:"Pobierz gotowy index.html",haveAddr:"Masz już kontrakt? Wklej jego adres:",downloadShort:"Pobierz plik",
 heroTitle:"Twój numer. Na zawsze.",heroText:"Klasyczny komunikator z numerkami, działający na blockchainie Base. Płacisz raz, dostajesz własny numer i piszesz do każdego po numerze.",once:"jednorazowo — numer na zawsze",perMsg:"za wysłaną wiadomość",free:"Za darmo",readFree:"czytanie, kontakty, status",connect:"Połącz portfel",noWallet:"Nie znaleziono portfela w tej przeglądarce. Otwórz stronę w aplikacji portfela:",publicNote:"Uwaga: wiadomości są zapisywane na publicznym blockchainie. Każdy może je odczytać w eksploratorze bloków — nie wysyłaj haseł ani prywatnych rzeczy.",
 regTitle:"Odbierz swój numer",regText:"Wybierz nick. Płacisz raz, a kolejny wolny numer jest Twój na zawsze.",yourNext:"Twój numer będzie",nickPh:"Nick",regBtn:"Odbierz numer za $1",
@@ -386,7 +387,7 @@ rejected:"Anulowano w portfelu",lowFunds:"Za mało ETH na Base na opłatę i gaz
 switchNet:"Przełącz portfel na sieć Base",newMsg:"Nowa wiadomość od {n}",pubStats:"{u} użytkowników · {m} wysłanych wiadomości",
 deployConfirm:"Wdrożyć BaseTalk z portfela {a}? Wszystkie opłaty będą trafiać na ten portfel.",deploying:"Wdrażanie…",wrongOwner:"To nie jest portfel admina",notContract:"Pod tym adresem nie ma kontraktu BaseTalk na Base",
 shareText:"Napisz do mnie na BaseTalk — mój numer to {n}",cancel:"Anuluj",ok:"OK",ago:"temu",now:"przed chwilą",
-statusFree:"Zmiana statusu kosztuje tylko gaz (ułamki centa).",noWalletShort:"Brak portfela w tej przeglądarce. Otwórz stronę w Chrome z MetaMaskiem albo w aplikacji MetaMask / Coinbase Wallet."}
+statusFree:"Zmiana statusu kosztuje tylko gaz (ułamki centa).",stepConnect:"Krok 1: odblokuj MetaMask i zatwierdź połączenie (jeśli nie wyskoczyło okienko, kliknij ikonę lisa w prawym górnym rogu Chrome).",stepConfirm:"Krok 2: potwierdź wdrożenie w MetaMasku (ikona lisa w prawym górnym rogu, jeśli okienko nie wyskoczyło).",stepWait:"Krok 3: czekam na potwierdzenie z sieci Base… (kilka sekund)",stepPending:"MetaMask ma już otwartą prośbę — kliknij ikonę lisa w prawym górnym rogu Chrome, dokończ ją albo odrzuć i spróbuj ponownie.",noWalletShort:"Brak portfela w tej przeglądarce. Otwórz stronę w Chrome z MetaMaskiem albo w aplikacji MetaMask / Coinbase Wallet."}
 };
 let lang = (()=>{ try{ return localStorage.getItem("bt_lang") || ((navigator.language||"").toLowerCase().startsWith("pl")?"pl":"en"); }catch{ return "en"; } })();
 const t = (k, v={}) => (T[lang][k] ?? T.en[k] ?? k).replace(/\{(\w+)\}/g,(_,x)=>v[x] ?? "");
@@ -592,22 +593,34 @@ async function isBaseTalk(addr){
 }
 function initSetup(){
   show("vSetup");
+  const step = m => { const el=$("deployStep"); el.textContent=m; el.classList.toggle("hidden",!m); };
   $("btnDeploy").onclick = async ()=>{
     try{
-      if(!await connectWallet()) return;
+      if (!eth){ step(t("noWalletShort")); toast(esc(t("noWalletShort")),"err",8000); return; }
+      step(t("stepConnect"));
+      if(!await connectWallet()){ step(""); return; }
+      step("");
       if(!await modal(t("deploy"), t("deployConfirm",{a:short(account)}), t("deploy"))) return;
       $("btnDeploy").disabled = true; $("btnDeploy").innerHTML = `<span class="spin"></span>${esc(t("deploying"))}`;
+      step(t("stepConfirm"));
       const f = new E.ContractFactory(ABI, BYTECODE, signer);
       const c = await f.deploy();
+      step(t("stepWait"));
       await c.waitForDeployment();
       const addr = await c.getAddress();
+      step("");
       store.set("bt_preview_contract", addr);
       $("deployedAddr").innerHTML = `<a href="${EXPLORER}/address/${addr}" target="_blank" rel="noopener">${addr}</a>`;
       $("deployResult").classList.remove("hidden");
       $("btnDownload").onclick = ()=>downloadFile(addr);
       $("btnDeploy").classList.add("hidden");
       toast(t("saved"),"ok");
-    }catch(e){ toast(friendlyError(e),"err",6000); $("btnDeploy").disabled=false; $("btnDeploy").textContent=t("deploy"); }
+    }catch(e){
+      const pending = e?.code===-32002 || e?.error?.code===-32002 || /already pending/i.test(e?.message||"");
+      step(pending ? t("stepPending") : friendlyError(e).replace(/<[^>]+>/g,""));
+      toast(pending ? esc(t("stepPending")) : friendlyError(e),"err",8000);
+      $("btnDeploy").disabled=false; $("btnDeploy").textContent=t("deploy");
+    }
   };
   $("btnUseAddr").onclick = async ()=>{
     const a = $("existingAddr").value.trim();
