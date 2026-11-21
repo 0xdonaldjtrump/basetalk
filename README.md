@@ -1,13 +1,27 @@
-# BaseTalk
+# BaseTalk — Base Network Messenger 💬
 
-A classic numbered messenger living on the **Base** blockchain.
+**On-chain messenger on Base network** (Base L2, Coinbase) — classic numbered chat in the spirit of old-school IM apps.
+**Komunikator na sieci Base** — czat z numerkami, wiadomości zapisane na blockchainie.
 
+👉 **Live app: https://0xdonaldjtrump.github.io/basetalk/**
+
+## How it works
 - **$1 once** — you get your own number (#1, #2, #3 …) forever
-- **$0.01 per sent message** (admin can change fees, down to $0.000001)
+- **$0.01 per sent message**
 - Reading, contacts, status, directory — free (gas only)
-- Fees are priced in USD and paid in ETH (Chainlink ETH/USD oracle with a backup price)
-- All fees go straight to the contract owner's wallet
+- Connect with MetaMask, Coinbase Wallet or any EVM wallet on Base
+- Fees are priced in USD and paid in ETH (Chainlink ETH/USD oracle on Base, with a backup price)
+- Status (available / away / busy / invisible), contact list, user directory, blocking, unread badges with sound, emoji, PL/EN
 
-`index.html` is the whole app (static, works on GitHub Pages). `BaseTalk.sol` is the smart contract.
+## Jak to działa (PL)
+- **$1 jednorazowo** — dostajesz własny numer na zawsze
+- **$0.01 za wysłaną wiadomość**, czytanie za darmo
+- Logowanie portfelem (MetaMask, Coinbase Wallet) na sieci Base
 
-> Messages are stored on a public blockchain — anyone can read them on a block explorer.
+## Files
+- `index.html` — the whole dApp (static, hosted on GitHub Pages, ethers.js v6)
+- `BaseTalk.sol` — the Solidity smart contract (Solidity 0.8.24, optimizer 200 runs)
+
+> ⚠️ Messages are stored on a public blockchain — anyone can read them on a block explorer. Don't send private data.
+
+**Keywords:** Base network messenger, Base chain chat, onchain messaging, web3 chat, decentralized messenger, Base dApp, crypto messenger, wallet-to-wallet chat, komunikator Base.
