@@ -5,6 +5,8 @@
 
 👉 **Live app: https://0xdonaldjtrump.github.io/basetalk/**
 
+**Contract on Base:** [`0x0092fc52A827059F560FDA59b11b1DE7Bf41a056`](https://basescan.org/address/0x0092fc52A827059F560FDA59b11b1DE7Bf41a056)
+
 ## How it works
 - **$1 once** — you get your own number (#1, #2, #3 …) forever
 - **$0.01 per sent message**
