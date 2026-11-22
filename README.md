@@ -7,6 +7,11 @@
 
 **Contract on Base:** [`0x0092fc52A827059F560FDA59b11b1DE7Bf41a056`](https://basescan.org/address/0x0092fc52A827059F560FDA59b11b1DE7Bf41a056)
 
+## Screenshots
+| Desktop | Mobile |
+|---|---|
+| ![Chat](docs/screenshots/chat.png) | ![Mobile](docs/screenshots/mobile.png) |
+
 ## How it works
 - **$1 once** — you get your own number (#1, #2, #3 …) forever
 - **$0.01 per sent message**
