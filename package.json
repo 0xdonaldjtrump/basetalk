@@ -1,0 +1,16 @@
+{
+  "name": "basetalk",
+  "version": "1.0.0",
+  "private": true,
+  "description": "On-chain numbered messenger on Base",
+  "scripts": {
+    "compile": "node scripts/compile.js",
+    "test": "node test/BaseTalk.test.js"
+  },
+  "devDependencies": {
+    "solc": "0.8.24",
+    "ganache": "7.9.2",
+    "ethers": "6.17.0"
+  },
+  "license": "MIT"
+}
